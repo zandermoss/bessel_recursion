@@ -5,55 +5,44 @@ from abc import ABCMeta, abstractmethod
 from numpy import sin,cos
 from scipy.special import spherical_jn, sici
 
-class KCrawlerArray(object):
-	def __init__(self, _x_crawler_array):
-		self.crawler_dict = dict()
-		self.x_crawler_array = _x_crawler_array	
-
-	def GetEntry(params,index):
-		if params not in self.crawler_dict:
-			crawler_dict[params] = KCrawler(params,self.x_crawler_array)
-		return crawler_dict[params].GetEntry(index)
-
-#-------------------------------------------------------------------------#
-
-class XCrawlerArray(object):
-	def __init__(self):
-		self.crawler_dict = dict()
-
-	def GetEntry(params,index):
-		if params not in self.crawler_dict:
-			crawler_dict[params] = XCrawler(params)
-		return crawler_dict[params].GetEntry(index)
-
-#-------------------------------------------------------------------------#
 
 class Crawler(object):
 
+	__metaclass__ = ABCMeta
+
 	def __init__(self, _params):
+		#print "CRAWLER INIT"
 		self.tree = dict()
 		self.params = _params
 
-	def Crawl(index):
-		if index not in tree:
-			if IsLeaf(index):
-				CalcLeaf(index)
+	def Crawl(self,index):
+		#print "CRAWL INDEX: ",index
+		if index not in self.tree:
+			if self.IsLeaf(index):
+				#print "INDEX: ", index
+				#print "LEAF CALC"
+				self.CalcLeaf(index)
 			else:
-				Branch(index)
-				CalcNode(index)
+				#print "INDEX: ", index
+				#print "BRANCHING"
+				self.Branch(index)
+				#print "INDEX: ", index
+				#print "NODE CALC"
+				self.CalcNode(index)
 
-	def GetEntry(index):
-		Crawl(index)
-		return tree[index]		
+	def GetEntry(self,index):
+		#print "CRAWLER GETENTRY"
+		self.Crawl(index)
+		return self.tree[index]		
 
 	@abstractmethod
-	def IsLeaf(index):
+	def IsLeaf(self,index):
 		''' Determines whether the index tuple corresponds to
 				a leaf of the recursion tree. '''
 		pass
 
 	@abstractmethod
-	def CalcLeaf(index)
+	def CalcLeaf(self,index):
 		''' Calculates the value at a given leaf. The recursion of this
 				tree terminates here, but this method may call other recursive
 				methods, as in the case of the K leaves calling the GetEntry
@@ -61,7 +50,7 @@ class Crawler(object):
 		pass
 
 	@abstractmethod
-	def Branch(index):
+	def Branch(self,index):
 		''' Recursively calls multiple crawlers. The choice of which
 				indices to call determines the structure of the recursion
 				tree. In this case, the X tree is a simple chain, and 
@@ -69,7 +58,7 @@ class Crawler(object):
 		pass
 				
 	@abstractmethod
-	def CalcNode(index):
+	def CalcNode(self,index):
 		''' Calculates the value at a given node using the values of 
 				lower nodes. This dependence is specified in the Branch()
 				method. Stores the result in tree[index]. '''
@@ -99,26 +88,26 @@ class KCrawler(Crawler):
 		self.C3 = dict()
 
 	#Idempotent calculation of node coefficients
-	def GetC2(l):
+	def GetC2(self,l):
 		if l not in self.C2:
 			self.C2[l] = spherical_jn(l-1,self.alpha*self.x)*spherical_jn(l-1,self.beta*self.x)
 		return self.C2[l] 
 	
 	#Idempotent calculation of node coefficients
-	def GetC3(l):
+	def GetC3(self,l):
 		if l not in self.C3:
 			T1 = self.beta*spherical_jn(l-1,self.alpha*self.x)*spherical_jn(l,self.beta*self.x)
 			T2 = self.alpha*spherical_jn(l-1,self.beta*self.x)*spherical_jn(l,self.alpha*self.x)
 			self.C3[l] = T1+T2	
 		return self.C3[l] 
 
-	def IsLeaf(index):
+	def IsLeaf(self,index):
 		if index[0]==0:
 			return True
 		else:
 			return False
 
-	def CalcLeaf(index):
+	def CalcLeaf(self,index):
 		n=index[1]
 		x_sum = x_crawler_array.GetEntry((self.alpha+self.beta)*self.x, n-3)
 		x_diff = x_crawler_array.GetEntry((self.alpha-self.beta)*self.x, n-3)
@@ -127,11 +116,11 @@ class KCrawler(Crawler):
 		val += ((n-2.0)/2.0)*(1.0/(self.alpha+self.beta)^(n-1))*x_sum
 		self.tree[index] = val
 		
-	def Branch(index):
-		Crawl((index[0]-1,index[1]))
-		Crawl((index[0]-1,index[1]-2))
+	def Branch(self,index):
+		self.Crawl((index[0]-1,index[1]))
+		self.Crawl((index[0]-1,index[1]-2))
 
-	def CalcNode(index):
+	def CalcNode(self,index):
 		l = index[0]
 		n = index[1]
 		val = self.C1*self.tree[(l-1,n)]
@@ -145,23 +134,23 @@ class KCrawler(Crawler):
 class XCrawler(Crawler):
 	def __init__(self,_params):
 		super(XCrawler,self).__init__(_params)
-		
-		#Parse params tuple
-		self.x = self.params[0]
+
+		#Params is not a tuple in this case, just a real number
+		self.x = self.params
 
 		#Calculation specific coefficient computations and initializations.
 		self.si, self.ci = sici(self.x)
 		self.sinx = sin(self.x)
 		self.cosx = cos(self.x)
 
-	def IsLeaf(index):
-		if index[0] in (-2,-1,0,1):
+	def IsLeaf(self,index):
+		if index in (-2,-1,0,1):
 			return True
 		else:
 			return False
 
-	def CalcLeaf(index):
-		m = index[0]
+	def CalcLeaf(self,index):
+		m = index
 		if m==-2:
 			val = self.ci - (self.sinx)/self.x
 		elif m==-1:
@@ -172,15 +161,15 @@ class XCrawler(Crawler):
 			val = self.sinx - (self.x)*(self.cosx)
 		self.tree[index] = val
 
-	def Branch(index):
-		m = index[0]
+	def Branch(self,index):
+		m = index
 		if m<0:
-			Crawl((m+2))
+			self.Crawl((m+2))
 		else:
-			Crawl((m-2))
+			self.Crawl((m-2))
 
-	def CalcNode(index):
-		m = index[0]
+	def CalcNode(self,index):
+		m = index
 		if m<0:
 			val = (m+2)*(self.x)**(m+1)*(self.sinx)
 			val += (-1.0)*(self.x)**(m+2)*(self.cosx)
@@ -190,5 +179,29 @@ class XCrawler(Crawler):
 			val = m*(self.x)**(m-1)*(self.sinx)
 			val += (-1.0)*(self.x)**m*(self.cosx)
 			val += (-1.0)*m*(m-1)*(self.tree[(m-2)])
-		return val
+		self.tree[index] = val
 
+#-------------------------------------------------------------------------#
+
+class KCrawlerArray(object):
+	def __init__(self, _x_crawler_array):
+		self.crawler_dict = dict()
+		self.x_crawler_array = _x_crawler_array	
+
+	def GetEntry(self,params,index):
+		if params not in self.crawler_dict:
+			self.crawler_dict[params] = KCrawler(params,self.x_crawler_array)
+		return self.crawler_dict[params].GetEntry(index)
+
+#-------------------------------------------------------------------------#
+
+class XCrawlerArray(object):
+	def __init__(self):
+		self.crawler_dict = dict()
+
+	def GetEntry(self,params,index):
+		if params not in self.crawler_dict:
+			self.crawler_dict[params] = XCrawler(params)
+		return self.crawler_dict[params].GetEntry(index)
+
+#-------------------------------------------------------------------------#
