@@ -11,27 +11,18 @@ class Crawler(object):
 	__metaclass__ = ABCMeta
 
 	def __init__(self, _params):
-		#print "CRAWLER INIT"
 		self.tree = dict()
 		self.params = _params
 
 	def Crawl(self,index):
-		#print "CRAWL INDEX: ",index
 		if index not in self.tree:
 			if self.IsLeaf(index):
-				#print "INDEX: ", index
-				#print "LEAF CALC"
 				self.CalcLeaf(index)
 			else:
-				#print "INDEX: ", index
-				#print "BRANCHING"
 				self.Branch(index)
-				#print "INDEX: ", index
-				#print "NODE CALC"
 				self.CalcNode(index)
 
 	def GetEntry(self,index):
-		#print "CRAWLER GETENTRY"
 		self.Crawl(index)
 		return self.tree[index]		
 
@@ -73,9 +64,9 @@ class KCrawler(Crawler):
 		self.x_crawler_array = _x_crawler_array	
 
 		#Parse params tuple
-		self.x = params[0]
-		self.alpha = params[1]
-		self.beta = params[2]
+		self.x = self.params[0]
+		self.alpha = self.params[1]
+		self.beta = self.params[2]
 
 		#Calculation specific coefficient computations and initializations.
 		#Leaf coefficients
@@ -109,12 +100,12 @@ class KCrawler(Crawler):
 
 	def CalcLeaf(self,index):
 		n=index[1]
-		x_sum = x_crawler_array.GetEntry((self.alpha+self.beta)*self.x, n-3)
-		x_diff = x_crawler_array.GetEntry((self.alpha-self.beta)*self.x, n-3)
-		val = (self.x**(n-2)/2.0)*self.D0
-		val += (-1.0)*((n-2.0)/2.0)*(1.0/(self.alpha-self.beta)^(n-1))*x_diff
-		val += ((n-2.0)/2.0)*(1.0/(self.alpha+self.beta)^(n-1))*x_sum
-		self.tree[index] = val
+		x_sum = self.x_crawler_array.GetEntry((self.alpha+self.beta)*self.x, n-3)
+		x_diff = self.x_crawler_array.GetEntry((self.alpha-self.beta)*self.x, n-3)
+		val = ((self.x**(n-2))/2.0)*self.D0
+		val += (-1.0)*((n-2.0)/2.0)*(1.0/((self.alpha-self.beta)**(n-1)))*x_diff
+		val += ((n-2.0)/2.0)*(1.0/((self.alpha+self.beta)**(n-1)))*x_sum
+		self.tree[index] = val/(self.alpha*self.beta)
 		
 	def Branch(self,index):
 		self.Crawl((index[0]-1,index[1]))
@@ -125,8 +116,8 @@ class KCrawler(Crawler):
 		n = index[1]
 		val = self.C1*self.tree[(l-1,n)]
 		val += (n-2.0)*(n+2.0*l-3.0)*self.tree[(l-1,n-2)]
-		val += (2.0-n)*self.x**(n-1)*GetC2(l)
-		val += (-1.0)*self.x**n*GetC3(l)
+		val += (2.0-n)*self.x**(n-1)*self.GetC2(l)
+		val += (-1.0)*self.x**n*self.GetC3(l)
 		self.tree[index] = self.C0*val
 
 #-------------------------------------------------------------------------#
