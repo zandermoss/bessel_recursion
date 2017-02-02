@@ -1,13 +1,13 @@
 from scipy.special import spherical_jn, sici
 from math import log
-from Crawler import Crawler
-from XYCrawler import XYCrawler, XYCrawlerArray
+from Crawler import Crawler, CrawlerDict
+from XYCrawler import XYCrawler, XYCrawlerDict
 
 class HCrawler(Crawler):
 
-	def __init__(self,_params,_xy_crawler_array):
+	def __init__(self,_params,_xy_crawler_dict):
 		super(HCrawler,self).__init__(_params)
-		self.xy_crawler_array = _xy_crawler_array	
+		self.xy_crawler_dict = _xy_crawler_dict	
 
 		#Parse params tuple
 		self.x = self.params
@@ -35,8 +35,8 @@ class HCrawler(Crawler):
 		if n==1:
 			val = 0.5*(self.logx - self.ci2x) 
 		else:
-			y2x = self.xy_crawler_array.GetEntry(2.0*self.x, (n-2,"Y"))
-			val = (self.x**(n-1))/(2.0*(n-1.0)) - (1.0/(2.0**n))*y2x
+			y2x = self.xy_crawler_dict.GetEntry(2.0*self.x, (n-2,"Y"))
+			val = (self.x**(n-1.0))/(2.0*(n-1.0)) - (1.0/(2.0**n))*y2x
 		self.tree[index] = val
 
 	def Branch(self,index):
@@ -54,12 +54,12 @@ class HCrawler(Crawler):
 		val -= (self.x**n)*self.GetJ(l-1)*self.GetJ(l)
 		self.tree[index] = val
 
-class HCrawlerArray(object):
-	def __init__(self, _xy_crawler_array):
+class HCrawlerDict(CrawlerDict):
+	def __init__(self, _xy_crawler_dict):
 		self.crawler_dict = dict()
-		self.xy_crawler_array = _xy_crawler_array	
+		self.xy_crawler_dict = _xy_crawler_dict	
 
 	def GetEntry(self,params,index):
 		if params not in self.crawler_dict:
-			self.crawler_dict[params] = HCrawler(params,self.xy_crawler_array)
+			self.crawler_dict[params] = HCrawler(params,self.xy_crawler_dict)
 		return self.crawler_dict[params].GetEntry(index)

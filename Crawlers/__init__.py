@@ -1,5 +1,5 @@
-from Crawler import Crawler
-from XYCrawler import XYCrawler, XYCrawlerArray
-from ICrawler import ICrawler, ICrawlerArray
-from KCrawler import KCrawler, KCrawlerArray
-from HCrawler import HCrawler, HCrawlerArray
+from Crawler import Crawler, CrawlerDict
+from XYCrawler import XYCrawler, XYCrawlerDict
+from ICrawler import ICrawler, ICrawlerDict
+from KCrawler import KCrawler, KCrawlerDict
+from HCrawler import HCrawler, HCrawlerDict

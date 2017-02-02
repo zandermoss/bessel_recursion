@@ -1,7 +1,6 @@
 from numpy import sin,cos
 from scipy.special import spherical_jn, sici
 
-from Crawler import Crawler, CrawlerDict
 
 class XYCrawler(Crawler):
 	def __init__(self,_params):
@@ -58,7 +57,7 @@ class XYCrawler(Crawler):
 			if m<0:
 				val = (1.0/(m+1))*((self.x)**(m+1)*self.sinx - self.tree[(m+1,"Y")])
 			else:
-				val = m*self.tree[(m-1,"Y")] - (self.x)**m*self.cosx
+				val = m*self.tree[(m-1,"Y")] - x**m*self.cosx
 		else:
 			if m<0:
 				val = (1.0/(m+1))*((self.x)**(m+1)*self.cosx + self.tree[(m+1,"X")])
@@ -67,7 +66,7 @@ class XYCrawler(Crawler):
 		self.tree[index] = val
 
 
-class XYCrawlerDict(CrawlerDict):
+class XYCrawlerArray(object):
 	def __init__(self):
 		self.crawler_dict = dict()
 

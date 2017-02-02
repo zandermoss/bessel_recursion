@@ -1,13 +1,13 @@
 from numpy import sin,cos
 from scipy.special import spherical_jn, sici
-from Crawler import Crawler, CrawlerDict
-from XYCrawler import XYCrawler, XYCrawlerDict
+from Crawler import Crawler
+from XYCrawler import XYCrawler, XYCrawlerArray
 
 class KCrawler(Crawler):
 
-	def __init__(self,_params,_xy_crawler_dict):
+	def __init__(self,_params,_xy_crawler_array):
 		super(KCrawler,self).__init__(_params)
-		self.xy_crawler_dict = _xy_crawler_dict	
+		self.xy_crawler_array = _xy_crawler_array	
 
 		#Parse params tuple
 		self.x = self.params[0]
@@ -46,8 +46,8 @@ class KCrawler(Crawler):
 
 	def CalcLeaf(self,index):
 		n=index[1]
-		y_sum = self.xy_crawler_dict.GetEntry((self.alpha+self.beta)*self.x, (n-2,"Y"))
-		y_diff = self.xy_crawler_dict.GetEntry((self.alpha-self.beta)*self.x, (n-2,"Y"))
+		y_sum = self.xy_crawler_array.GetEntry((self.alpha+self.beta)*self.x, (n-2,"Y"))
+		y_diff = self.xy_crawler_array.GetEntry((self.alpha-self.beta)*self.x, (n-2,"Y"))
 		val = (1.0/(self.alpha-self.beta)**(n-1))*y_diff
 		val -= (1.0/(self.alpha+self.beta)**(n-1))*y_sum
 		val *= (1.0/(2*self.alpha*self.beta))		
@@ -67,13 +67,14 @@ class KCrawler(Crawler):
 		self.tree[index] = self.C0*val
 
 
-class KCrawlerDict(CrawlerDict):
-	def __init__(self, _xy_crawler_dict):
+class KCrawlerArray(object):
+	def __init__(self, _xy_crawler_array):
 		self.crawler_dict = dict()
-		self.xy_crawler_dict = _xy_crawler_dict	
+		self.xy_crawler_array = _xy_crawler_array	
 
 	def GetEntry(self,params,index):
 		if params not in self.crawler_dict:
-			self.crawler_dict[params] = KCrawler(params,self.xy_crawler_dict)
+			self.crawler_dict[params] = KCrawler(params,self.xy_crawler_array)
 		return self.crawler_dict[params].GetEntry(index)
+
 
