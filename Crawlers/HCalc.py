@@ -46,6 +46,7 @@ class HCalc(object):
 		return delta
 
 	def Calculate(self,kpair,l,n,alpha):
+		
 		azero=self.DetZero(alpha)
 		if azero:
 			intvals=[0.0,0.0]
@@ -55,14 +56,15 @@ class HCalc(object):
 		else:
 
 			FR = self.FirstRoot(l)	
-			AFR1 = self.AboveFirstRoot(kpair[0],l)
-			AFR2 = self.AboveFirstRoot(kpair[1],l)
+			AFR1 = self.AboveFirstRoot(kpair[0]*alpha,l)
+			AFR2 = self.AboveFirstRoot(kpair[1]*alpha,l)
 
 			if (not AFR1) and (not AFR2):
  			 	delta, err = integrate.quad(self.HInt, kpair[0], kpair[1], args=(l,n,alpha))
 			elif (not AFR1) and AFR2:
-				toroot, err = integrate.quad(self.HInt, kpair[0], FR, args=(l,n,alpha))		
-				fromroot = self.AnalyticCalculate([FR,kpair[1]], l,n,alpha)
+				kroot = FR/alpha
+				toroot, err = integrate.quad(self.HInt, kpair[0], kroot, args=(l,n,alpha))		
+				fromroot = self.AnalyticCalculate([kroot,kpair[1]], l,n,alpha)
 				delta = toroot+fromroot
 			else:
 				delta = self.AnalyticCalculate(kpair,l,n,alpha)	
