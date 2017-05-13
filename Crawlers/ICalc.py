@@ -51,7 +51,7 @@ class ICalc(object):
 		if azero:
 			intvals=[0.0,0.0]
 		 	for j in range(2):
-				intvals[j] = self.IZero(kpair[j],n)
+				intvals[j] = self.IZero(kpair[j],l,n)
 			delta = intvals[1] - intvals[0]
 		else:
 
