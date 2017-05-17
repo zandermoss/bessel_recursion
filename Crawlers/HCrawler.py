@@ -39,7 +39,7 @@ class HCrawler(Crawler):
 		l=index[0]
 		n=index[1]
 
-		if n==2:
+		if (n==2 and l!= 0):
 			val = ((self.x)**3/2.0)*(self.GetJ(l)**2 - self.GetJ(l-1)*self.GetJ(l+1))	
 		elif n==1:
 			val = 0.5*(self.logx - self.ci2x) 

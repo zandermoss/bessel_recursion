@@ -62,7 +62,7 @@ class KCrawler(Crawler):
 		l=index[0]
 		n=index[1]
 
-		if n==2:
+		if (n==2 and l!=0):
 			val = (self.x**2/(self.alpha**2 - self.beta**2))*self.GetC4(l)
 		else:
 			y_sum = self.xy_crawler_dict.GetEntry((self.alpha+self.beta)*self.x, (n-2,"Y"))
