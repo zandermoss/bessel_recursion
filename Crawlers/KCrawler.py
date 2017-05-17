@@ -47,20 +47,20 @@ class KCrawler(Crawler):
 			self.C4[l] = T1-T2	
 		return self.C4[l] 
 
-  def IsLeaf(self,index):
-    l=index[0]
-    n=index[1]
+	def IsLeaf(self,index):
+		l=index[0]
+		n=index[1]
 
-    if n==2:
-      return True
+		if n==2:
+			return True
 		if l==0:
 			return True
 		else:
 			return False
 
 	def CalcLeaf(self,index):
-    l=index[0]
-    n=index[1]
+		l=index[0]
+		n=index[1]
 
 		if n==2:
 			val = (self.x**2/(self.alpha**2 - self.beta**2))*self.GetC4(l)
