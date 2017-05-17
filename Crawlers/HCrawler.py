@@ -25,14 +25,23 @@ class HCrawler(Crawler):
 		return self.J[l]
 
 	def IsLeaf(self,index):
-		if index[0]==0:
+		l=index[0]
+		n=index[1]
+
+		if n==2:
+			return True
+		if l==0:
 			return True
 		else:
 			return False
 
 	def CalcLeaf(self,index):
+		l=index[0]
 		n=index[1]
-		if n==1:
+
+		if n==2:
+			val = ((self.x)**3/2.0)*(self.GetJ(l)**2 - self.GetJ(l-1)*self.GetJ(l+1))	
+		elif n==1:
 			val = 0.5*(self.logx - self.ci2x) 
 		else:
 			y2x = self.xy_crawler_dict.GetEntry(2.0*self.x, (n-2,"Y"))

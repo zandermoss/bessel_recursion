@@ -23,6 +23,7 @@ class KCrawler(Crawler):
 		self.C1 = (self.alpha**2 + self.beta**2)
 		self.C2 = dict()
 		self.C3 = dict()
+		self.C4 = dict()
 
 	#Idempotent calculation of node coefficients
 	def GetC2(self,l):
@@ -38,19 +39,38 @@ class KCrawler(Crawler):
 			self.C3[l] = T1+T2	
 		return self.C3[l] 
 
-	def IsLeaf(self,index):
-		if index[0]==0:
+	#Idempotent calculation of node coefficients
+	def GetC4(self,l):
+		if l not in self.C4:
+			T1 = self.beta*spherical_jn(l,self.alpha*self.x)*spherical_jn(l-1,self.beta*self.x)
+			T2 = self.alpha*spherical_jn(l-1,self.alpha*self.x)*spherical_jn(l,self.beta*self.x)
+			self.C4[l] = T1-T2	
+		return self.C4[l] 
+
+  def IsLeaf(self,index):
+    l=index[0]
+    n=index[1]
+
+    if n==2:
+      return True
+		if l==0:
 			return True
 		else:
 			return False
 
 	def CalcLeaf(self,index):
-		n=index[1]
-		y_sum = self.xy_crawler_dict.GetEntry((self.alpha+self.beta)*self.x, (n-2,"Y"))
-		y_diff = self.xy_crawler_dict.GetEntry((self.alpha-self.beta)*self.x, (n-2,"Y"))
-		val = (1.0/(self.alpha-self.beta)**(n-1))*y_diff
-		val -= (1.0/(self.alpha+self.beta)**(n-1))*y_sum
-		val *= (1.0/(2*self.alpha*self.beta))		
+    l=index[0]
+    n=index[1]
+
+		if n==2:
+			val = (self.x**2/(self.alpha**2 - self.beta**2))*self.GetC4(l)
+		else:
+			y_sum = self.xy_crawler_dict.GetEntry((self.alpha+self.beta)*self.x, (n-2,"Y"))
+			y_diff = self.xy_crawler_dict.GetEntry((self.alpha-self.beta)*self.x, (n-2,"Y"))
+			val = (1.0/(self.alpha-self.beta)**(n-1))*y_diff
+			val -= (1.0/(self.alpha+self.beta)**(n-1))*y_sum
+			val *= (1.0/(2*self.alpha*self.beta))		
+
 		self.tree[index] = val		
 
 	def Branch(self,index):
